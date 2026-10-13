@@ -29,6 +29,7 @@ App que capture voz (clases y reuniones), la transcriba a texto literal y guarde
 - [x] **F1** App Flutter MVP: grabar → enviar → guardar `.md` · probada en Android 16 (S22 Ultra)
 - [ ] **F1.1** Server en la máquina vieja → ver [`DEPLOY-UBUNTU.md`](DEPLOY-UBUNTU.md)
 - [x] **F2a** Servicio en primer plano (pantalla apagada) · ⭐ favoritos · materias con vocabulario · notas en la bóveda Cerebro_wilo · ícono
+- [x] **F2a+** Interfaz renovada en app y web (menú ☰, animaciones, notas con buscador, historial web, tema oscuro)
 - [ ] **F2b** Bloques de ~30 s con texto en vivo y cola offline
 - [ ] **F2c** Separar quién habla (Persona 1, Persona 2…)
 - [ ] **F2** Sesión larga: bloques, segundo plano (foreground service), cola offline

@@ -2,168 +2,677 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F6F86">
 <title>Amanuense</title>
 <link rel="icon" href="/icon.png">
 <style>
-  :root { --bg:#f6f6f3; --card:#fff; --fg:#1d1d1b; --mut:#6b6b66; --acc:#3d5a3a; --bd:#deded8; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#151614; --card:#1f201d; --fg:#ecece6; --mut:#9a9a92; --acc:#8fb388; --bd:#33342f; } }
+  :root {
+    --bg:#f3f7f8; --surface:#ffffff; --surface-2:#e9f1f3; --fg:#14232a; --muted:#5b6d74; --border:#d5e2e6;
+    --primary:#1f6f86; --primary-2:#2a89a3; --on-primary:#ffffff; --primary-soft:#d6ecf2;
+    --gold:#e0a82e; --gold-soft:rgba(224,168,46,.16); --danger:#c2413b; --danger-soft:#fbe5e3; --ok:#2e9e5b;
+    --shadow:0 1px 2px rgba(16,40,48,.06), 0 8px 24px rgba(16,40,48,.07);
+    --radius:16px; --ease:cubic-bezier(.2,.8,.2,1);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#0d1619; --surface:#142126; --surface-2:#1b2c32; --fg:#e4eef0; --muted:#93a8ae; --border:#26393f;
+      --primary:#5fb7cf; --primary-2:#7cc8dc; --on-primary:#06222b; --primary-soft:#173a44;
+      --gold-soft:rgba(224,168,46,.18); --danger:#ef7d76; --danger-soft:#3a1d1b;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0d1619; --surface:#142126; --surface-2:#1b2c32; --fg:#e4eef0; --muted:#93a8ae; --border:#26393f;
+    --primary:#5fb7cf; --primary-2:#7cc8dc; --on-primary:#06222b; --primary-soft:#173a44;
+    --gold-soft:rgba(224,168,46,.18); --danger:#ef7d76; --danger-soft:#3a1d1b;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
   * { box-sizing:border-box; }
-  body { margin:0; font:16px/1.5 system-ui,sans-serif; background:var(--bg); color:var(--fg); padding:16px; }
-  main { max-width:560px; margin:24px auto 8px; background:var(--card); border:1px solid var(--bd); border-radius:12px; padding:20px; }
-  h1 { margin:0 0 4px; font-size:1.4rem; } p.sub { margin:0 0 20px; color:var(--mut); }
-  label { display:block; font-weight:600; margin:14px 0 6px; }
-  input { width:100%; padding:10px; border:1px solid var(--bd); border-radius:8px; background:transparent; color:inherit; font:inherit; }
-  button { margin-top:18px; width:100%; padding:12px; border:0; border-radius:8px; background:var(--acc); color:var(--card); font:600 1rem system-ui; cursor:pointer; }
-  button:disabled { opacity:.5; cursor:wait; }
-  button.sec { background:transparent; color:var(--acc); border:1.5px solid var(--acc); }
-  #msg { margin-top:14px; color:var(--mut); white-space:pre-wrap; }
-  pre { max-height:300px; overflow:auto; background:var(--bg); padding:10px; border-radius:8px; font-size:.85rem; white-space:pre-wrap; }
-  small { color:var(--mut); }
-  .bar { margin-top:16px; height:10px; background:var(--bg); border:1px solid var(--bd); border-radius:99px; overflow:hidden; }
-  .bar > div { height:100%; width:0; background:var(--acc); border-radius:99px; transition:width .25s linear; }
-  .pct { display:flex; justify-content:space-between; font-size:.85rem; color:var(--mut); margin-top:4px; font-variant-numeric:tabular-nums; }
-  pre.art { margin:0; padding:0; background:none; overflow:hidden; white-space:pre; line-height:1; color:var(--acc);
-            font-family:ui-monospace,'DejaVu Sans Mono',monospace; max-height:none; }
-  pre.banner { font-size:min(10.5px, calc((100vw - 80px) / 48)); margin-bottom:12px; }
-  footer { max-width:560px; margin:0 auto 24px; text-align:right; padding-right:4px; }
-  pre.firma { font-size:2.4px; display:inline-block; text-align:left; opacity:.75; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--fg); }
+  svg.i { width:20px; height:20px; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  button { font:inherit; color:inherit; }
+  a { color:var(--primary); }
+  :focus-visible { outline:2.5px solid var(--primary); outline-offset:2px; border-radius:10px; }
+
+  /* ---------- Barra superior ---------- */
+  header.top { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:10px; padding:10px 16px;
+    background:color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.1rem; text-decoration:none; color:var(--fg); }
+  .brand img { width:34px; height:34px; border-radius:50%; }
+  .spacer { flex:1; }
+  .icon-btn { display:inline-grid; place-items:center; width:42px; height:42px; border:0; border-radius:12px; background:transparent; cursor:pointer; color:var(--fg); transition:background .2s; }
+  .icon-btn:hover { background:var(--surface-2); }
+  .pill { display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:99px; background:var(--surface-2); font-size:.82rem; color:var(--muted); border:0; cursor:pointer; white-space:nowrap; }
+  .dot { position:relative; width:8px; height:8px; border-radius:50%; background:var(--muted); }
+  .dot.live::after { content:""; position:absolute; inset:-4px; border-radius:50%; background:inherit; opacity:.4; animation:ping 1.6s var(--ease) infinite; }
+  @keyframes ping { from { transform:scale(.6); opacity:.5; } to { transform:scale(1.8); opacity:0; } }
+  @media (max-width:520px) { .pill .txt { display:none; } }
+
+  /* ---------- Menú lateral ---------- */
+  .layout { display:flex; min-height:calc(100vh - 63px); }
+  nav.side { width:270px; flex:none; padding:16px 12px; display:flex; flex-direction:column; gap:4px; }
+  .nav-item { display:flex; align-items:center; gap:14px; padding:11px 16px; border-radius:99px; text-decoration:none; color:var(--fg); border:0; background:none; cursor:pointer; text-align:left; width:100%; font-size:.97rem; transition:background .2s; }
+  .nav-item:hover { background:var(--surface-2); }
+  .nav-item[aria-current="page"] { background:var(--primary-soft); color:var(--primary); font-weight:600; }
+  .nav-item.danger { color:var(--danger); }
+  .side-head { display:flex; align-items:center; gap:12px; padding:14px; margin-bottom:10px; border-radius:20px; background:linear-gradient(135deg,var(--primary-soft),var(--surface-2)); }
+  .side-head img { width:52px; height:52px; border-radius:50%; }
+  .side-head b { display:block; font-size:1.1rem; } .side-head small { color:var(--muted); }
+  .side-foot { margin-top:auto; padding:12px 8px 4px; text-align:right; }
+  .scrim { display:none; }
+  .menu-btn { display:none; }
+  .side-close { display:none !important; margin-left:auto; }
+  @media (max-width:1023px) {
+    .menu-btn { display:inline-grid; }
+    nav.side { position:fixed; z-index:40; inset:0 auto 0 0; width:min(300px, 86vw); background:var(--surface); box-shadow:var(--shadow);
+      transform:translateX(-105%); transition:transform .3s var(--ease); padding-top:calc(16px + env(safe-area-inset-top)); overflow-y:auto; }
+    body.menu-open nav.side { transform:none; }
+    .scrim { display:block; position:fixed; inset:0; z-index:30; background:rgba(5,15,18,.45); opacity:0; pointer-events:none; transition:opacity .3s; }
+    body.menu-open .scrim { opacity:1; pointer-events:auto; }
+    .side-close { display:inline-grid !important; }
+  }
+
+  /* ---------- Contenido ---------- */
+  main { flex:1; min-width:0; padding:20px 16px 48px; }
+  .wrap { max-width:640px; margin:0 auto; }
+  .view { animation:viewIn .35s var(--ease); }
+  @keyframes viewIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom:16px; }
+  h1 { font-size:1.45rem; margin:0 0 4px; } h2 { font-size:1.05rem; margin:0 0 12px; display:flex; align-items:center; gap:8px; }
+  .sub { color:var(--muted); margin:0 0 18px; }
+  .muted { color:var(--muted); } .small { font-size:.85rem; }
+  pre.art { margin:0; padding:0; overflow:hidden; white-space:pre; line-height:1; color:var(--primary); font-family:ui-monospace,"DejaVu Sans Mono",monospace; background:none; }
+  pre.banner { font-size:min(9px, calc((100vw - 48px) / 48)); margin:4px 0 14px; }
+  @media (min-width:1024px) { pre.banner { font-size:min(9px, calc((100vw - 330px) / 48)); } }
+  pre.firma { font-size:2.4px; display:inline-block; opacity:.75; }
+
+  /* Zona para soltar el audio */
+  .drop { position:relative; display:flex; flex-direction:column; align-items:center; gap:8px; padding:28px 16px; border:2px dashed var(--border); border-radius:var(--radius);
+    text-align:center; cursor:pointer; transition:border-color .2s, background .2s, transform .2s; background:var(--surface-2); }
+  .drop:hover, .drop.over { border-color:var(--primary); background:var(--primary-soft); }
+  .drop.over { transform:scale(1.01); }
+  .drop .big { width:54px; height:54px; display:grid; place-items:center; border-radius:50%; background:var(--surface); color:var(--primary); box-shadow:var(--shadow); }
+  .drop .big svg { width:26px; height:26px; }
+  .drop input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .file { display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:var(--primary-soft); animation:viewIn .3s var(--ease); }
+  .file .ico { width:42px; height:42px; display:grid; place-items:center; border-radius:12px; background:var(--surface); color:var(--primary); flex:none; }
+  .file .meta { flex:1; min-width:0; } .file .meta b { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  label { display:block; font-weight:600; margin:16px 0 6px; font-size:.92rem; }
+  .field { position:relative; }
+  .field svg.i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none; }
+  input[type=text], input[type=password], textarea { width:100%; padding:12px 12px 12px 42px; border:1.5px solid transparent; border-radius:12px; background:var(--surface-2); color:inherit; font:inherit; transition:border-color .2s, background .2s; }
+  textarea { padding-left:12px; min-height:80px; resize:vertical; }
+  input:focus, textarea:focus { outline:none; border-color:var(--primary); background:var(--surface); }
+  details { margin-top:14px; border-radius:12px; }
+  summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:8px; font-weight:600; color:var(--muted); padding:6px 0; }
+  summary::-webkit-details-marker { display:none; }
+  summary .chev { transition:transform .25s var(--ease); margin-left:auto; }
+  details[open] summary .chev { transform:rotate(180deg); }
+  .hint { color:var(--muted); font-size:.82rem; margin-top:4px; }
+
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 18px; border-radius:12px; border:0; cursor:pointer; font-weight:600; text-decoration:none;
+    transition:transform .12s, filter .2s, background .2s, opacity .2s; }
+  .btn:active { transform:scale(.97); }
+  .btn.primary { background:linear-gradient(135deg,var(--primary-2),var(--primary)); color:var(--on-primary); box-shadow:0 6px 18px color-mix(in srgb, var(--primary) 30%, transparent); }
+  .btn.primary:hover { filter:brightness(1.06); }
+  .btn.tonal { background:var(--primary-soft); color:var(--primary); }
+  .btn.ghost { background:transparent; color:var(--fg); border:1.5px solid var(--border); }
+  .btn.block { width:100%; margin-top:20px; padding:14px; font-size:1.02rem; }
+  .btn:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  .spin { width:18px; height:18px; border:2.5px solid currentColor; border-right-color:transparent; border-radius:50%; animation:rot .8s linear infinite; }
+  @keyframes rot { to { transform:rotate(360deg); } }
+
+  /* Progreso */
+  .stages { display:flex; gap:6px; margin-bottom:14px; }
+  .stage { flex:1; display:flex; align-items:center; gap:6px; font-size:.82rem; color:var(--muted); }
+  .stage .n { width:22px; height:22px; flex:none; display:grid; place-items:center; border-radius:50%; background:var(--surface-2); font-size:.75rem; font-weight:700; transition:background .3s, color .3s; }
+  .stage.on { color:var(--fg); font-weight:600; } .stage.on .n { background:var(--primary); color:var(--on-primary); }
+  .stage.done .n { background:var(--ok); color:#fff; }
+  .bar { height:10px; border-radius:99px; background:var(--surface-2); overflow:hidden; }
+  .bar > div { height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,var(--primary-2),var(--primary)); transition:width .25s linear; position:relative; overflow:hidden; }
+  .bar > div::after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent); animation:shine 1.4s linear infinite; }
+  @keyframes shine { from { transform:translateX(-100%); } to { transform:translateX(100%); } }
+  .pct { display:flex; justify-content:space-between; margin-top:6px; font-size:.85rem; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+  /* Resultado */
+  .ok-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .check { width:44px; height:44px; flex:none; border-radius:50%; background:var(--ok); color:#fff; display:grid; place-items:center; animation:pop .5s var(--ease); }
+  .check svg { width:24px; height:24px; stroke-width:3; stroke-dasharray:30; stroke-dashoffset:30; animation:draw .45s .2s var(--ease) forwards; }
+  @keyframes pop { 0% { transform:scale(.3); } 70% { transform:scale(1.12); } 100% { transform:scale(1); } }
+  @keyframes draw { to { stroke-dashoffset:0; } }
+  .seg { display:inline-flex; background:var(--surface-2); border-radius:10px; padding:3px; margin:14px 0 10px; }
+  .seg button { border:0; background:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size:.85rem; color:var(--muted); }
+  .seg button[aria-pressed="true"] { background:var(--surface); color:var(--fg); box-shadow:var(--shadow); }
+
+  /* Nota con formato */
+  .note { max-height:60vh; overflow:auto; padding:4px 2px; }
+  .note h3 { font-size:1.25rem; margin:4px 0 8px; }
+  .note h4 { display:flex; align-items:center; gap:8px; margin:18px 0 8px; font-size:1rem; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
+  .chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:99px; background:var(--surface-2); font-size:.8rem; }
+  .chip svg.i { width:14px; height:14px; }
+  .p { display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; line-height:1.6; }
+  .p.star { background:var(--gold-soft); padding:10px; border-radius:12px; }
+  .ts { flex:none; padding:2px 8px; border-radius:8px; background:var(--primary-soft); color:var(--primary); font-size:.78rem; font-weight:700; font-variant-numeric:tabular-nums; margin-top:2px; }
+  .star .ts, .moment .ts { background:var(--gold); color:#2a1d00; }
+  .moment { display:flex; gap:10px; padding:10px 12px; margin-bottom:8px; border-radius:12px; background:var(--gold-soft); border-left:3px solid var(--gold); }
+  .note hr { border:0; border-top:1px solid var(--border); margin:18px 0; }
+  .note .foot { text-align:right; font-style:italic; color:var(--muted); font-size:.8rem; }
+  pre.raw { white-space:pre-wrap; background:var(--surface-2); padding:12px; border-radius:12px; font-size:.84rem; max-height:60vh; overflow:auto; margin:0; }
+
+  /* Historial */
+  .item { display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:var(--surface); border:1px solid var(--border); margin-bottom:10px; animation:viewIn .3s var(--ease) both; }
+  .item .ico { width:42px; height:42px; flex:none; border-radius:12px; display:grid; place-items:center; background:var(--primary-soft); color:var(--primary); }
+  .item .meta { flex:1; min-width:0; } .item .meta b { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .empty { text-align:center; padding:40px 16px; color:var(--muted); }
+  .empty .big { width:72px; height:72px; margin:0 auto 12px; border-radius:50%; display:grid; place-items:center; background:var(--primary-soft); color:var(--primary); }
+  .empty .big svg { width:34px; height:34px; }
+  .steps { display:grid; gap:12px; }
+  .step { display:flex; gap:12px; align-items:flex-start; }
+  .step .n { width:36px; height:36px; flex:none; border-radius:50%; display:grid; place-items:center; background:var(--primary-soft); color:var(--primary); }
+
+  /* Diálogo y avisos */
+  dialog { border:0; border-radius:20px; padding:0; width:min(680px, calc(100vw - 32px)); background:var(--surface); color:var(--fg); box-shadow:var(--shadow); }
+  dialog::backdrop { background:rgba(5,15,18,.5); }
+  dialog[open] { animation:viewIn .25s var(--ease); }
+  .dlg-head { display:flex; align-items:center; gap:8px; padding:12px 12px 0 18px; }
+  .dlg-head b { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dlg-body { padding:6px 18px 18px; }
+  #toasts { position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:60; display:grid; gap:8px; width:max-content; max-width:calc(100vw - 32px); }
+  .toast { padding:10px 16px; border-radius:12px; background:var(--fg); color:var(--bg); box-shadow:var(--shadow); font-size:.92rem; animation:toastIn .3s var(--ease); }
+  .toast.out { animation:toastOut .25s var(--ease) forwards; }
+  @keyframes toastIn { from { opacity:0; transform:translateY(12px) scale(.96); } }
+  @keyframes toastOut { to { opacity:0; transform:translateY(8px); } }
+  .err { display:flex; gap:10px; padding:12px; border-radius:12px; background:var(--danger-soft); color:var(--danger); margin-top:14px; animation:viewIn .3s var(--ease); }
+  [hidden] { display:none !important; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
 </style>
 </head>
 <body>
-<main>
-  <pre class="art banner" aria-label="Amanuense">{{BANNER}}</pre>
-  <h1><img src="/icon.png" alt="" width="36" height="36" style="vertical-align:middle;border-radius:50%;margin-right:8px">Amanuense</h1>
-  <p class="sub">Sube un audio → descarga la nota <code>.md</code> con el texto literal.</p>
-  <form id="f">
-    <label for="audio">Audio (mp3, m4a, flac, wav, ogg, opus…)</label>
-    <input id="audio" type="file" accept="audio/*,video/*" required>
-    <label for="title">Título <small>(opcional)</small></label>
-    <input id="title" placeholder="Clase SOA - unidad 2">
-    <div id="keyBox" hidden>
-      <label for="key">API key <small>(el server la exige)</small></label>
-      <input id="key" type="password" autocomplete="off">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5M12 3v12"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></symbol>
+  <symbol id="i-audio" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+  <symbol id="i-school" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></symbol>
+  <symbol id="i-timer" viewBox="0 0 24 24"><path d="M10 2h4M12 14l3-3"/><circle cx="12" cy="14" r="8"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+</svg>
+
+<header class="top">
+  <button class="icon-btn menu-btn" id="menuBtn" aria-label="Abrir menú" aria-controls="side" aria-expanded="false"><svg class="i"><use href="#i-menu"/></svg></button>
+  <a class="brand" href="#/"><img src="/icon.png" alt="">Amanuense</a>
+  <span class="spacer"></span>
+  <button class="pill" id="status" title="Estado del server (toca para revisar)"><span class="dot" id="dot"></span><span class="txt" id="statusTxt">Conectando…</span></button>
+  <button class="icon-btn" id="themeBtn" aria-label="Cambiar tema"><svg class="i"><use id="themeIco" href="#i-moon"/></svg></button>
+</header>
+
+<div class="scrim" id="scrim"></div>
+<div class="layout">
+  <nav class="side" id="side" aria-label="Menú">
+    <div class="side-head">
+      <img src="/icon.png" alt="">
+      <div><b>Amanuense</b><small id="ver">Voz → texto literal</small></div>
+      <button class="icon-btn side-close" id="closeBtn" aria-label="Cerrar menú"><svg class="i"><use href="#i-x"/></svg></button>
     </div>
-    <button id="btn">Transcribir</button>
-  </form>
-  <div id="prog" hidden>
-    <div class="bar"><div id="fill"></div></div>
-    <div class="pct"><span id="stage"></span><span id="pct">0%</span></div>
+    <a class="nav-item" href="#/" data-view="transcribir"><svg class="i"><use href="#i-upload"/></svg>Transcribir</a>
+    <a class="nav-item" href="#/historial" data-view="historial"><svg class="i"><use href="#i-clock"/></svg>Historial <span class="muted small" id="histCount"></span></a>
+    <a class="nav-item" href="#/acerca" data-view="acerca"><svg class="i"><use href="#i-info"/></svg>Acerca de</a>
+    <a class="nav-item" href="/docs" target="_blank" rel="noopener"><svg class="i"><use href="#i-book"/></svg>API</a>
+    <button class="nav-item danger" id="logoutBtn" hidden><svg class="i"><use href="#i-logout"/></svg>Cerrar sesión</button>
+    <div class="side-foot"><pre class="art firma" aria-label="by wilo" title="by wilo">{{FIRMA}}</pre></div>
+  </nav>
+
+  <main>
+    <div class="wrap">
+
+      <!-- ===== Transcribir ===== -->
+      <section class="view" id="v-transcribir">
+        <pre class="art banner" aria-label="Amanuense">{{BANNER}}</pre>
+        <h1>Transcribir un audio</h1>
+        <p class="sub">Sube una grabación y descarga la nota <code>.md</code> con el texto literal.</p>
+
+        <form id="f" class="card" novalidate>
+          <h2><svg class="i"><use href="#i-audio"/></svg>Audio</h2>
+          <div class="drop" id="drop">
+            <input id="audio" type="file" accept="audio/*,video/*" aria-label="Elegir audio">
+            <div class="big"><svg class="i"><use href="#i-upload"/></svg></div>
+            <b>Arrastra tu audio aquí o toca para elegir</b>
+            <span class="muted small">mp3 · m4a · flac · wav · ogg · opus · video</span>
+          </div>
+          <div class="file" id="fileBox" hidden>
+            <div class="ico"><svg class="i"><use href="#i-audio"/></svg></div>
+            <div class="meta"><b id="fileName"></b><span class="muted small" id="fileInfo"></span></div>
+            <button type="button" class="icon-btn" id="clearFile" aria-label="Quitar audio"><svg class="i"><use href="#i-x"/></svg></button>
+          </div>
+
+          <label for="title">Título <span class="muted small">(opcional)</span></label>
+          <div class="field"><svg class="i"><use href="#i-edit"/></svg><input id="title" type="text" placeholder="Unidad 2 - Requisitos" autocomplete="off"></div>
+
+          <label for="materia">Materia <span class="muted small">(opcional)</span></label>
+          <div class="field"><svg class="i"><use href="#i-school"/></svg><input id="materia" type="text" list="materias" placeholder="Evolucion" autocomplete="off"></div>
+          <datalist id="materias"></datalist>
+
+          <details id="adv">
+            <summary><svg class="i"><use href="#i-sliders"/></svg>Opciones avanzadas<svg class="i chev"><use href="#i-chev"/></svg></summary>
+            <label for="vocab">Vocabulario</label>
+            <textarea id="vocab" placeholder="SOA, WSDL, microservicios, Kubernetes"></textarea>
+            <div class="hint">Términos que Whisper debe escribir bien, separados por coma.</div>
+          </details>
+
+          <div id="keyBox" hidden>
+            <label for="key">API key <span class="muted small">(el server la exige)</span></label>
+            <div class="field"><svg class="i"><use href="#i-key"/></svg><input id="key" type="password" autocomplete="off"></div>
+          </div>
+
+          <button class="btn primary block" id="btn" disabled><svg class="i"><use href="#i-mic"/></svg><span>Transcribir</span></button>
+          <div class="err" id="err" hidden><svg class="i"><use href="#i-alert"/></svg><span id="errTxt"></span></div>
+        </form>
+
+        <div class="card" id="prog" hidden>
+          <div class="stages">
+            <div class="stage" id="st1"><span class="n">1</span>Subir</div>
+            <div class="stage" id="st2"><span class="n">2</span>Transcribir</div>
+            <div class="stage" id="st3"><span class="n">3</span>Listo</div>
+          </div>
+          <div class="bar"><div id="fill"></div></div>
+          <div class="pct"><span id="stage">Subiendo…</span><span id="pct">0%</span></div>
+        </div>
+
+        <div class="card" id="result" hidden>
+          <div class="ok-head">
+            <div class="check"><svg class="i"><use href="#i-check"/></svg></div>
+            <div style="min-width:0"><b>Nota lista</b><div class="muted small" id="resName" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div></div>
+          </div>
+          <div class="row">
+            <button class="btn primary" id="dl"><svg class="i"><use href="#i-download"/></svg>Descargar .md</button>
+            <button class="btn tonal" id="cp"><svg class="i"><use href="#i-copy"/></svg>Copiar</button>
+            <button class="btn ghost" id="again"><svg class="i"><use href="#i-plus"/></svg>Otro audio</button>
+          </div>
+          <div class="seg" role="group" aria-label="Vista">
+            <button type="button" aria-pressed="true" data-mode="nice">Con formato</button>
+            <button type="button" aria-pressed="false" data-mode="raw">Texto .md</button>
+          </div>
+          <div id="preview"></div>
+        </div>
+      </section>
+
+      <!-- ===== Historial ===== -->
+      <section class="view" id="v-historial" hidden>
+        <h1>Historial</h1>
+        <p class="sub">Tus últimas transcripciones en este navegador.</p>
+        <div id="histList"></div>
+      </section>
+
+      <!-- ===== Acerca de ===== -->
+      <section class="view" id="v-acerca" hidden>
+        <div style="text-align:center"><img src="/icon.png" alt="Amanuense" width="120" height="120" style="border-radius:50%;box-shadow:var(--shadow)"></div>
+        <pre class="art banner" style="margin-top:16px" aria-hidden="true">{{BANNER}}</pre>
+        <p class="sub" style="text-align:center" id="aboutVer">Voz → texto literal → tu Cerebro</p>
+        <div class="card steps">
+          <div class="step"><span class="n"><svg class="i"><use href="#i-upload"/></svg></span><div><b>Sube el audio</b><div class="muted small">De una clase, reunión o nota de voz.</div></div></div>
+          <div class="step"><span class="n"><svg class="i"><use href="#i-school"/></svg></span><div><b>Pon la materia y el vocabulario</b><div class="muted small">Whisper acierta mejor los términos técnicos.</div></div></div>
+          <div class="step"><span class="n"><svg class="i"><use href="#i-file"/></svg></span><div><b>Descarga la nota .md</b><div class="muted small">Lista para la bóveda Obsidian, con marcas de tiempo.</div></div></div>
+          <div class="step"><span class="n"><svg class="i"><use href="#i-mic"/></svg></span><div><b>¿En clase?</b><div class="muted small">Usa la app del celular: graba con la pantalla apagada y marca ⭐.</div></div></div>
+        </div>
+        <div class="row" style="justify-content:center">
+          <a class="btn tonal" href="https://github.com/WilmerBuestan/amanuense" target="_blank" rel="noopener"><svg class="i"><use href="#i-code"/></svg>Código</a>
+          <a class="btn ghost" href="/docs" target="_blank" rel="noopener"><svg class="i"><use href="#i-book"/></svg>API</a>
+        </div>
+        <div style="text-align:center;margin-top:32px"><pre class="art firma" aria-label="by wilo">{{FIRMA}}</pre><div class="muted small">Wilmer Buestan</div></div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<dialog id="dlg">
+  <div class="dlg-head"><b id="dlgTitle"></b>
+    <button class="icon-btn" id="dlgDl" aria-label="Descargar"><svg class="i"><use href="#i-download"/></svg></button>
+    <button class="icon-btn" id="dlgCp" aria-label="Copiar"><svg class="i"><use href="#i-copy"/></svg></button>
+    <button class="icon-btn" id="dlgX" aria-label="Cerrar"><svg class="i"><use href="#i-x"/></svg></button>
   </div>
-  <div id="msg"></div>
-  <button id="dl" class="sec" hidden>⬇️ Descargar .md</button>
-  <pre id="out" hidden></pre>
-</main>
-<footer><pre class="art firma" aria-label="by wilo" title="by wilo">{{FIRMA}}</pre></footer>
+  <div class="dlg-body" id="dlgBody"></div>
+</dialog>
+<div id="toasts" aria-live="polite"></div>
+
 <script>
 const $ = (id) => document.getElementById(id);
 const store = {
-  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  get(k, d = null) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); return true; } catch { return false; } },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
 };
-$("key").value = store.get("am_key") || "";
+const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const icon = (id, cls = "i") => `<svg class="${cls}"><use href="#i-${id}"/></svg>`;
 
-// La API key solo se pide si el server la exige
-fetch("/health").then(r => r.json()).then(h => { if (h.auth) $("keyBox").hidden = false; }).catch(() => {});
+// ---------- Avisos ----------
+function toast(msg) {
+  const t = Object.assign(document.createElement("div"), { className: "toast", textContent: msg });
+  $("toasts").append(t);
+  setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 260); }, 2200);
+}
 
-// Duración del audio: del propio archivo; si el navegador no puede leerla, se estima por el peso (~128 kbps)
-function audioSeconds(file) {
+// ---------- Tema claro / oscuro ----------
+function applyTheme(t) {
+  if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
+  const dark = t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  $("themeIco").setAttribute("href", dark ? "#i-sun" : "#i-moon");
+  $("themeBtn").setAttribute("aria-label", dark ? "Usar tema claro" : "Usar tema oscuro");
+}
+applyTheme(store.get("am_theme"));
+$("themeBtn").onclick = () => {
+  const dark = document.documentElement.dataset.theme
+    ? document.documentElement.dataset.theme === "dark"
+    : matchMedia("(prefers-color-scheme: dark)").matches;
+  const next = dark ? "light" : "dark";
+  store.set("am_theme", next); applyTheme(next);
+};
+
+// ---------- Menú hamburguesa ----------
+const setMenu = (open) => {
+  document.body.classList.toggle("menu-open", open);
+  $("menuBtn").setAttribute("aria-expanded", open);
+  if (open) $("side").querySelector(".nav-item").focus({ preventScroll: true });
+};
+$("menuBtn").onclick = () => setMenu(true);
+$("closeBtn").onclick = $("scrim").onclick = () => setMenu(false);
+addEventListener("keydown", (e) => { if (e.key === "Escape") setMenu(false); });
+
+// ---------- Vistas (#/, #/historial, #/acerca) ----------
+function route() {
+  const v = (location.hash.replace(/^#\//, "") || "transcribir").split("/")[0];
+  const view = ["transcribir", "historial", "acerca"].includes(v) ? v : "transcribir";
+  for (const s of document.querySelectorAll("section.view")) s.hidden = s.id !== "v-" + view;
+  for (const a of document.querySelectorAll(".nav-item[data-view]")) {
+    if (a.dataset.view === view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  }
+  if (view === "historial") renderHistory();
+  setMenu(false);
+  scrollTo({ top: 0 });
+}
+addEventListener("hashchange", route);
+
+// ---------- Estado del server ----------
+let health = null;
+async function checkHealth() {
+  $("dot").className = "dot"; $("statusTxt").textContent = "Conectando…";
+  try {
+    health = await (await fetch("/health", { cache: "no-store" })).json();
+    const ok = health.status === "ok";
+    $("dot").className = "dot live"; $("dot").style.background = ok ? "var(--ok)" : "var(--gold)";
+    $("statusTxt").textContent = ok ? `En línea · ${health.model} · ${health.device}` : "Cargando modelo…";
+    $("keyBox").hidden = !health.auth;
+    $("logoutBtn").hidden = !(health.auth && store.get("am_key"));
+    if (health.version) { $("ver").textContent = `Voz → texto literal · v${health.version}`; $("aboutVer").textContent = `Voz → texto literal → tu Cerebro · v${health.version}`; }
+  } catch {
+    $("dot").className = "dot"; $("dot").style.background = "var(--danger)";
+    $("statusTxt").textContent = "Sin conexión";
+  }
+}
+$("status").onclick = checkHealth;
+setInterval(checkHealth, 30000);
+
+$("key").value = store.get("am_key", "");
+$("logoutBtn").onclick = () => {
+  store.del("am_key"); $("key").value = ""; $("logoutBtn").hidden = true;
+  setMenu(false); toast("Sesión cerrada: se borró la API key de este navegador");
+};
+
+// ---------- Elegir / soltar el audio ----------
+let file = null, secs = 0;
+const fmtSize = (b) => b > 1e6 ? (b / 1e6).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1e3)) + " KB";
+const fmtDur = (s) => { s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(x).padStart(2, "0"); };
+
+// Duración: del propio archivo; si el navegador no puede leerla, se estima por el peso (~128 kbps)
+function audioSeconds(f) {
   return new Promise((resolve) => {
-    const guess = () => resolve(file.size / 16000);
-    const a = document.createElement("audio");
-    const url = URL.createObjectURL(file);
-    const t = setTimeout(() => { URL.revokeObjectURL(url); guess(); }, 3000);
+    const a = document.createElement("audio"), url = URL.createObjectURL(f);
+    const done = (v, real) => { clearTimeout(t); URL.revokeObjectURL(url); resolve({ v, real }); };
+    const t = setTimeout(() => done(f.size / 16000, false), 3000);
     a.preload = "metadata";
-    a.onloadedmetadata = () => {
-      clearTimeout(t); URL.revokeObjectURL(url);
-      isFinite(a.duration) && a.duration > 0 ? resolve(a.duration) : guess();
-    };
-    a.onerror = () => { clearTimeout(t); URL.revokeObjectURL(url); guess(); };
+    a.onloadedmetadata = () => isFinite(a.duration) && a.duration > 0 ? done(a.duration, true) : done(f.size / 16000, false);
+    a.onerror = () => done(f.size / 16000, false);
     a.src = url;
   });
 }
 
+async function setFile(f) {
+  file = f || null;
+  $("drop").hidden = !!file; $("fileBox").hidden = !file; $("btn").disabled = !file;
+  $("err").hidden = true;
+  if (!file) { $("audio").value = ""; return; }
+  $("fileName").textContent = file.name;
+  $("fileInfo").textContent = fmtSize(file.size) + " · calculando duración…";
+  const d = await audioSeconds(file); secs = d.v;
+  $("fileInfo").textContent = `${fmtSize(file.size)} · ${d.real ? "" : "≈ "}${fmtDur(secs)}`;
+  if (!$("title").value.trim()) $("title").placeholder = file.name.replace(/\.[^.]+$/, "");
+}
+$("audio").onchange = () => setFile($("audio").files[0]);
+$("clearFile").onclick = () => setFile(null);
+for (const ev of ["dragenter", "dragover"]) $("drop").addEventListener(ev, (e) => { e.preventDefault(); $("drop").classList.add("over"); });
+for (const ev of ["dragleave", "drop"]) $("drop").addEventListener(ev, () => $("drop").classList.remove("over"));
+$("drop").addEventListener("drop", (e) => { e.preventDefault(); if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]); });
+
+// ---------- Progreso ----------
 // Segundos de proceso por segundo de audio; se ajusta solo con cada transcripción
 const ratio = () => parseFloat(store.get("am_ratio")) || 0.12;
 const OVERHEAD = 2;
-
-let pctNow = 0, timer = null, mdBlob = null, mdName = "nota.md";
-function setPct(p, stage) {
+let pctNow = 0, timer = null;
+function setPct(p, label) {
   pctNow = Math.max(pctNow, Math.min(100, p));
   $("fill").style.width = pctNow + "%";
   $("pct").textContent = Math.floor(pctNow) + "%";
-  if (stage) $("stage").textContent = stage;
+  if (label) $("stage").textContent = label;
 }
-
-// Subida: 0–15 % real. Proceso: rápido hasta 70 % a mitad del tiempo estimado, luego cada vez más lento hasta 99 %
+function setStage(n) {
+  ["st1", "st2", "st3"].forEach((id, i) => {
+    $(id).className = "stage" + (i + 1 < n ? " done" : i + 1 === n ? " on" : "");
+    $(id).querySelector(".n").innerHTML = i + 1 < n ? icon("check").replace('class="i"', 'class="i" style="width:14px;height:14px;stroke-width:3"') : i + 1;
+  });
+}
+// Subida 0–15 % real. Proceso: rápido hasta 70 % a mitad del tiempo estimado, luego cada vez más lento hasta 99 %
 function startEstimate(estimate) {
   const t0 = Date.now();
+  setStage(2);
   timer = setInterval(() => {
-    const t = (Date.now() - t0) / 1000 / estimate;
+    const el = (Date.now() - t0) / 1000, t = el / estimate;
     const p = t < 0.5 ? 15 + 55 * (t / 0.5) : 70 + 29 * (1 - Math.exp(-(t - 0.5) * 2.5));
-    setPct(p, "Transcribiendo…");
+    const left = Math.max(0, estimate - el);
+    setPct(p, left > 3 ? `Transcribiendo… ≈ ${fmtDur(left)} restante` : "Transcribiendo… casi listo");
   }, 200);
   return t0;
 }
 
-$("dl").addEventListener("click", () => {
-  if (!mdBlob) return;
-  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(mdBlob), download: mdName });
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-});
+// ---------- Nota con formato ----------
+function frontmatter(md) {
+  const fm = {}; if (!md.startsWith("---")) return [fm, md];
+  const end = md.indexOf("\n---", 3); if (end < 0) return [fm, md];
+  for (const line of md.slice(3, end).split("\n")) {
+    const i = line.indexOf(":"); if (i <= 0) continue;
+    fm[line.slice(0, i).trim()] = line.slice(i + 1).trim().replace(/^"(.*)"$/, "$1");
+  }
+  return [fm, md.slice(end + 4)];
+}
+function renderNote(md) {
+  const [fm, body] = frontmatter(md);
+  let h = '<div class="note">';
+  const chips = [
+    fm.materia && ["school", fm.materia], fm.fecha && ["clock", fm.fecha], fm.duracion && ["timer", fm.duracion],
+    fm.favoritos && ["star", fm.favoritos + (fm.favoritos === "1" ? " favorito" : " favoritos")],
+  ].filter(Boolean);
+  if (chips.length) h += '<div class="chips">' + chips.map(([i, t]) => `<span class="chip">${icon(i)}${esc(t)}</span>`).join("") + "</div>";
+  for (const raw of body.split("\n")) {
+    const l = raw.trimEnd(); let m;
+    if (!l || l.startsWith("📚")) continue;
+    if (l.startsWith("# ")) h += `<h3>${esc(l.slice(2))}</h3>`;
+    else if (l.startsWith("## ")) { const star = l.includes("⭐");
+      h += `<h4>${icon(star ? "star" : "file")}${esc(l.slice(3).replace("⭐ ", ""))}</h4>`; }
+    else if (l === "---") h += "<hr>";
+    else if ((m = l.match(/^- \*\*\[([\d:]+)\]\*\* (.*)$/))) h += `<div class="moment"><span class="ts">⭐ ${m[1]}</span><span>${esc(m[2])}</span></div>`;
+    else if ((m = l.match(/^(⭐ )?\*\*\[([\d:]+)\]\*\* ?(.*)$/))) h += `<div class="p${m[1] ? " star" : ""}"><span class="ts">${m[1] ? "⭐ " : ""}${m[2]}</span><span>${esc(m[3])}</span></div>`;
+    else if (/^_.*_$/.test(l)) h += `<div class="foot">${esc(l.slice(1, -1))}</div>`;
+    else h += `<p>${esc(l)}</p>`;
+  }
+  return h + "</div>";
+}
+function showPreview(md, mode) {
+  $("preview").innerHTML = mode === "raw" ? `<pre class="raw">${esc(md)}</pre>` : renderNote(md);
+  for (const b of document.querySelectorAll(".seg button")) b.setAttribute("aria-pressed", b.dataset.mode === mode);
+}
+for (const b of document.querySelectorAll(".seg button")) b.onclick = () => current && showPreview(current.md, b.dataset.mode);
 
-$("f").addEventListener("submit", async (e) => {
+// ---------- Descargar / copiar ----------
+function download(name, md) {
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([md], { type: "text/markdown" })), download: name });
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast("⬇️ Descargando " + name);
+}
+async function copy(md) {
+  try { await navigator.clipboard.writeText(md); toast("📋 Texto copiado"); }
+  catch { toast("No se pudo copiar"); }
+}
+let current = null;
+$("dl").onclick = () => current && download(current.name, current.md);
+$("cp").onclick = () => current && copy(current.md);
+$("again").onclick = () => {
+  $("result").hidden = true; $("prog").hidden = true; setFile(null);
+  $("title").value = ""; $("f").scrollIntoView({ behavior: "smooth" });
+};
+
+// ---------- Historial (solo en este navegador) ----------
+const hist = () => { try { return JSON.parse(store.get("am_hist", "[]")); } catch { return []; } };
+function saveHist(entry) {
+  let h = [entry, ...hist().filter((x) => x.name !== entry.name)].slice(0, 20);
+  while (h.length && !store.set("am_hist", JSON.stringify(h))) h = h.slice(0, -1); // si no cabe, quita las más viejas
+  updateMaterias();
+}
+function updateMaterias() {
+  const ms = [...new Set(hist().map((x) => x.materia).filter(Boolean))];
+  $("materias").innerHTML = ms.map((m) => `<option value="${esc(m)}">`).join("");
+  const n = hist().length; $("histCount").textContent = n ? `(${n})` : "";
+}
+function renderHistory() {
+  const h = hist();
+  if (!h.length) {
+    $("histList").innerHTML = `<div class="empty"><div class="big">${icon("clock")}</div><b>Todavía no hay transcripciones</b><p>Las notas que transcribas aquí aparecerán en esta lista.</p><a class="btn primary" href="#/">${icon("upload")}Transcribir un audio</a></div>`;
+    return;
+  }
+  $("histList").innerHTML = h.map((x, i) => `
+    <div class="item" style="animation-delay:${Math.min(i, 8) * 40}ms">
+      <div class="ico">${icon("file")}</div>
+      <div class="meta"><b>${esc(x.titulo || x.name)}</b><span class="muted small">${esc([x.materia, x.fecha, x.duracion].filter(Boolean).join(" · "))}</span></div>
+      <button class="icon-btn" data-act="open" data-i="${i}" aria-label="Ver">${icon("file")}</button>
+      <button class="icon-btn" data-act="dl" data-i="${i}" aria-label="Descargar">${icon("download")}</button>
+      <button class="icon-btn" data-act="del" data-i="${i}" aria-label="Quitar del historial">${icon("trash")}</button>
+    </div>`).join("");
+}
+$("histList").onclick = (e) => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  const h = hist(), x = h[+b.dataset.i]; if (!x) return;
+  if (b.dataset.act === "dl") download(x.name, x.md);
+  if (b.dataset.act === "open") openDialog(x);
+  if (b.dataset.act === "del") { h.splice(+b.dataset.i, 1); store.set("am_hist", JSON.stringify(h)); updateMaterias(); renderHistory(); toast("Quitado del historial"); }
+};
+let dlgEntry = null;
+function openDialog(x) {
+  dlgEntry = x; $("dlgTitle").textContent = x.titulo || x.name; $("dlgBody").innerHTML = renderNote(x.md);
+  $("dlg").showModal();
+}
+$("dlgX").onclick = () => $("dlg").close();
+$("dlgDl").onclick = () => dlgEntry && download(dlgEntry.name, dlgEntry.md);
+$("dlgCp").onclick = () => dlgEntry && copy(dlgEntry.md);
+$("dlg").addEventListener("click", (e) => { if (e.target === $("dlg")) $("dlg").close(); });
+
+// ---------- Enviar ----------
+function showError(msg) { $("errTxt").textContent = msg; $("err").hidden = false; }
+$("f").addEventListener("submit", (e) => {
   e.preventDefault();
-  const file = $("audio").files[0]; if (!file) return;
+  if (!file) return;
   const fd = new FormData();
   fd.append("audio", file);
-  if ($("title").value.trim()) fd.append("title", $("title").value.trim());
+  const title = $("title").value.trim(), materia = $("materia").value.trim(), vocab = $("vocab").value.trim();
+  if (title) fd.append("title", title);
+  if (materia) fd.append("materia", materia);
+  if (vocab) fd.append("vocabulario", vocab);
   const key = $("key").value.trim();
-  store.set("am_key", key);
+  if (key) store.set("am_key", key);
 
-  $("btn").disabled = true; $("out").hidden = true; $("dl").hidden = true; $("msg").textContent = "";
-  pctNow = 0; $("fill").style.transition = "none"; setPct(0, "Subiendo…");
+  const btn = $("btn"); btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span><span>Transcribiendo…</span>';
+  $("err").hidden = true; $("result").hidden = true;
+  pctNow = 0; $("fill").style.transition = "none"; setPct(0, "Subiendo…"); setStage(1);
   requestAnimationFrame(() => { $("fill").style.transition = ""; });
-  $("prog").hidden = false;
+  $("prog").hidden = false; $("prog").scrollIntoView({ behavior: "smooth", block: "center" });
 
-  const secs = await audioSeconds(file);
   const estimate = OVERHEAD + secs * ratio();
-  const tStart = Date.now();
-  let tProc = null;
-
+  const tStart = Date.now(); let tProc = null;
   const xhr = new XMLHttpRequest();
   xhr.open("POST", "/transcribe/md");
   if (key) xhr.setRequestHeader("X-API-Key", key);
   xhr.responseType = "blob";
-  xhr.upload.onprogress = (ev) => { if (ev.lengthComputable) setPct(15 * ev.loaded / ev.total, "Subiendo…"); };
+  xhr.upload.onprogress = (ev) => { if (ev.lengthComputable) setPct(15 * ev.loaded / ev.total, "Subiendo… " + fmtSize(ev.loaded)); };
   xhr.upload.onload = () => { tProc = startEstimate(estimate); };
-  const finish = () => { clearInterval(timer); $("btn").disabled = false; };
+  const finish = () => { clearInterval(timer); btn.disabled = !file; btn.innerHTML = icon("mic") + "<span>Transcribir</span>"; };
 
   xhr.onload = async () => {
     finish();
     if (xhr.status !== 200) {
       let detail = xhr.statusText;
       try { detail = JSON.parse(await xhr.response.text()).detail || detail; } catch {}
-      if (xhr.status === 401) $("keyBox").hidden = false;
-      $("prog").hidden = true;
-      $("msg").textContent = "❌ " + detail;
+      if (xhr.status === 401) { $("keyBox").hidden = false; $("key").focus(); detail = "API key inválida o faltante"; }
+      $("prog").hidden = true; showError(detail);
       return;
     }
-    setPct(100, "Listo");
+    setPct(100, "Listo"); setStage(4);
     if (tProc && secs > 0) {  // aprende la velocidad real del server para la próxima barra
       const real = Math.max(0.01, ((Date.now() - tProc) / 1000 - OVERHEAD) / secs);
       store.set("am_ratio", (ratio() * 0.5 + real * 0.5).toFixed(4));
     }
-    mdName = (xhr.getResponseHeader("Content-Disposition") || "").match(/filename="(.+)"/)?.[1] || "nota.md";
-    mdBlob = xhr.response;
-    $("out").textContent = await mdBlob.text(); $("out").hidden = false;
-    $("dl").hidden = false;
-    $("msg").textContent = `✅ ${mdName} (${((Date.now() - tStart) / 1000).toFixed(0)} s)`;
+    const name = (xhr.getResponseHeader("Content-Disposition") || "").match(/filename="(.+)"/)?.[1] || "nota.md";
+    const md = await xhr.response.text();
+    const [fm] = frontmatter(md);
+    current = { name, md, titulo: fm.titulo, materia: fm.materia, fecha: fm.fecha, duracion: fm.duracion };
+    saveHist(current);
+    $("resName").textContent = `${name} · ${((Date.now() - tStart) / 1000).toFixed(0)} s`;
+    showPreview(md, "nice");
+    setTimeout(() => { $("prog").hidden = true; $("result").hidden = false; $("result").scrollIntoView({ behavior: "smooth", block: "start" }); }, 450);
+    $("logoutBtn").hidden = !(health?.auth && store.get("am_key"));
   };
-  xhr.onerror = () => { finish(); $("prog").hidden = true; $("msg").textContent = "❌ No se pudo conectar con el server"; };
+  xhr.onerror = () => { finish(); $("prog").hidden = true; showError("No se pudo conectar con el server"); };
   xhr.send(fd);
 });
+
+updateMaterias();
+checkHealth();
+route();
 </script>
 </body>
 </html>

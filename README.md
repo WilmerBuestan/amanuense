@@ -115,6 +115,11 @@ flutter build apk --release  # APK en build/app/outputs/flutter-apk/
 - **Clases largas:** al grabar en Android aparece una notificación fija (servicio en primer plano). Sigue grabando con la pantalla apagada
   y tiene botones **⭐ Marcar** y **⏹ Detener**.
 - Si falla la transcripción, el audio queda guardado y se puede **Reintentar**.
+- **Interfaz (v0.3):** menú ☰ (Grabar, Notas, Materias, Configuración, Acerca de, Salir), botón de grabar animado,
+  onda de voz en vivo, estado del server (punto verde/rojo), notas con buscador y filtro por materia,
+  nota con formato (⭐ resaltados) y botón Compartir. Pruebas de interfaz: `flutter test`.
+- **Web (v0.3):** menú lateral, arrastrar y soltar el audio, etapas de progreso, vista con formato,
+  historial en el navegador, tema claro/oscuro, materia y vocabulario.
 
 ## Formato de la nota
 ```markdown

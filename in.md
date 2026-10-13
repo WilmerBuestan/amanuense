@@ -67,6 +67,11 @@ F2a – Clases largas y Cerebro (13-oct-2026)
   - Opción "Guardar los audios" (fuera de la bóveda) para entrenar un modelo propio después.
   - Ícono propio (app y página web).
 
+Interfaz v0.3 (13-oct-2026)
+  - App: menú hamburguesa con Salir, botón de grabar con pulso, onda de voz, chips de materia, estado del server,
+    pantalla Notas (buscar/filtrar), nota con formato y Compartir, Acerca de. Colores del ícono.
+  - Web: menú lateral, arrastrar archivo, etapas + tiempo restante, vista con formato, historial, tema oscuro.
+
 ## Lo que viene
 F1.1 – Llevar el server a la máquina vieja (guía: docs/DEPLOY-UBUNTU.md)
   - IP fija, Docker, modelo small→medium, medir con un audio de clase real.

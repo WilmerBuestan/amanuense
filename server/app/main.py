@@ -29,7 +29,7 @@ async def lifespan(_: FastAPI):
     state.clear()
 
 
-app = FastAPI(title="Amanuense - Transcriptor", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Amanuense - Transcriptor", version="0.3.0", lifespan=lifespan)
 
 
 def check_key(x_api_key: str | None = Header(default=None)) -> None:
@@ -103,6 +103,7 @@ def health():
         "device": getattr(eng, "device", None),
         "compute": getattr(eng, "compute", None),
         "auth": bool(config.API_KEY),
+        "version": app.version,
     }
 
 
