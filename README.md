@@ -68,7 +68,9 @@ Cambiar de modelo: editar `.env` y `docker compose up -d`.
 - **API (para la app Flutter):**
   - `GET  /health`
   - `POST /transcribe`     → JSON `{text, language, duration, processing_s, segments[]}`
-  - `POST /transcribe/md`  → archivo `.md` (form: `audio`, `title`, `language`)
+  - `POST /transcribe/md`  → archivo `.md` (form: `audio`, `title`, `language`, `materia`, `vocabulario`, `marcas`)
+    - `vocabulario`: términos separados por coma (`SOA, WSDL`) → Whisper los escribe bien
+    - `marcas`: segundos marcados con ⭐ (`95.2,610`) → sección *Momentos importantes*
   - Docs interactivas: `http://IP_SERVER:8000/docs`
 
 ### Dejarlo como servicio (arranca solo)
@@ -106,28 +108,42 @@ flutter run -d R5CTA27JLLA   # celular por USB
 flutter run -d linux         # PC
 flutter build apk --release  # APK en build/app/outputs/flutter-apk/
 ```
-- ⚙️ Configuración: dirección del server (`http://IP:8000`) y carpeta de notas.
-- Notas en `Documents/Amanuense` (Android, pide "Acceso a todos los archivos") o `~/Documentos/Amanuense` (PC).
+- ⚙️ Configuración: server, carpeta base (bóveda **Cerebro_wilo**), **Materias** y "Guardar los audios".
+- **Materias:** cada una tiene su carpeta en la bóveda (ej. `VIII Semestre/Evolucion`) y su vocabulario.
+- Carpeta base: `Documents/Cerebro_wilo` (Android, sincronizada con Syncthing) o `~/Documentos/Cerebro_wilo` (PC).
+  Sin materia → `Amanuense/`.
+- **Clases largas:** al grabar en Android aparece una notificación fija (servicio en primer plano). Sigue grabando con la pantalla apagada
+  y tiene botones **⭐ Marcar** y **⏹ Detener**.
 - Si falla la transcripción, el audio queda guardado y se puede **Reintentar**.
 
 ## Formato de la nota
 ```markdown
 ---
+tipo: transcripcion
 titulo: "Clase SOA unidad 2"
+creado: 2026-10-13
 fecha: 2026-10-13 08:23
 duracion: 52:10
 idioma: es
 origen: clase.m4a
-tags: [amanuense, transcripcion]
+materia: "SOA"
+tags: [amanuense, transcripcion, soa]
+favoritos: 1
 estado: literal
 ---
 
 # Clase SOA unidad 2
 
+📚 [[SOA]]
+
+## ⭐ Momentos importantes
+
+- **[01:10]** ...esto entra en el examen...
+
 ## Transcripción
 
 **[00:00]** Buenos días, hoy vamos a ver WSDL...
-**[01:02]** ...
+⭐ **[01:02]** ...
 
 ---
 _Transcrito con Amanuense · by wilo (Wilmer Buestan)_

@@ -28,6 +28,9 @@ App que capture voz (clases y reuniones), la transcriba a texto literal y guarde
 - [x] **F0.1** Docker (`docker compose`, volumen para el modelo) · marca Amanuense · barra de progreso web
 - [x] **F1** App Flutter MVP: grabar → enviar → guardar `.md` · probada en Android 16 (S22 Ultra)
 - [ ] **F1.1** Server en la máquina vieja → ver [`DEPLOY-UBUNTU.md`](DEPLOY-UBUNTU.md)
+- [x] **F2a** Servicio en primer plano (pantalla apagada) · ⭐ favoritos · materias con vocabulario · notas en la bóveda Cerebro_wilo · ícono
+- [ ] **F2b** Bloques de ~30 s con texto en vivo y cola offline
+- [ ] **F2c** Separar quién habla (Persona 1, Persona 2…)
 - [ ] **F2** Sesión larga: bloques, segundo plano (foreground service), cola offline
 - [ ] **F3** Seguridad + acceso remoto (API key + Tailscale) + Syncthing a Cerebro
 - [ ] **F4** Procesamiento con IA automático (resumen, puntos clave, tareas)
@@ -36,12 +39,9 @@ App que capture voz (clases y reuniones), la transcriba a texto literal y guarde
 ## Ideas (backlog)
 | Idea | Fase |
 |---|---|
-| Vocabulario por materia (prompt inicial de Whisper: SOA, WSDL…) para acertar términos técnicos | F2 |
-| Materia/carpeta al grabar → `Cerebro/Clases/SOA/` | F2 |
-| Botón ⭐ para marcar momentos importantes (`⭐ [12:34]`) en el `.md` | F2 |
 | Subir un audio existente desde la app (grabadora de Linux, WhatsApp) | F2 |
 | Mantener pantalla y micrófono activos en clases de 2 h (foreground service) | F2 |
-| Separar quién habla (diarización) en reuniones | F4 |
+| Modelo propio: con los audios guardados + notas corregidas, afinar Whisper (fine-tuning) en GPU | F4 |
 | Resumen / puntos clave / tareas con Claude, sin tocar el literal | F4 |
 | Ícono propio de la app y APK firmado | F3 |
 

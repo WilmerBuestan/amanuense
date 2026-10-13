@@ -1,15 +1,22 @@
 // Dónde se guardan las notas .md y los audios.
+// Carpeta base = bóveda Cerebro_wilo: en la PC la real, en el celular una copia
+// que Syncthing mantiene igual. Dentro: Amanuense/ (sin materia) o la carpeta de cada materia.
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'settings.dart';
+
 class Storage {
-  /// Android: /storage/emulated/0/Documents/Amanuense · PC: ~/Documentos/Amanuense
+  static final _notaRe = RegExp(r'^\d{4}-\d{2}-\d{2}_\d{4}_.*\.md$');
+
+  /// Android: Documents/Cerebro_wilo · PC: ~/Documentos/Cerebro_wilo (si existe)
   static Future<String> defaultFolder() async {
-    if (Platform.isAndroid) return '/storage/emulated/0/Documents/Amanuense';
+    if (Platform.isAndroid) return '/storage/emulated/0/Documents/Cerebro_wilo';
     final docs = await getApplicationDocumentsDirectory();
-    return '${docs.path}/Amanuense';
+    final vault = Directory('${docs.path}/Cerebro_wilo');
+    return await vault.exists() ? vault.path : '${docs.path}/Amanuense';
   }
 
   /// En Android pide "Acceso a todos los archivos" para escribir fuera de la app.
@@ -19,16 +26,25 @@ class Storage {
     return (await Permission.manageExternalStorage.request()).isGranted;
   }
 
-  static Future<Directory> notesDir(String? custom) async {
-    final dir = Directory(custom ?? await defaultFolder());
+  static Future<String> base(Settings s) async => s.folder ?? await defaultFolder();
+
+  static Future<Directory> notesDir(Settings s, Materia? m) async {
+    final dir = Directory('${await base(s)}/${m?.carpeta ?? Settings.generalFolder}');
     await dir.create(recursive: true);
     return dir;
   }
 
-  /// Audios de las grabaciones (se borran al transcribir bien; quedan si falla).
+  /// Audios en grabación o pendientes (se borran al transcribir bien; quedan si falla).
   static Future<Directory> audioDir() async {
-    final base = await getApplicationSupportDirectory();
-    final dir = Directory('${base.path}/audios');
+    final b = await getApplicationSupportDirectory();
+    final dir = Directory('${b.path}/audios');
+    await dir.create(recursive: true);
+    return dir;
+  }
+
+  /// Audios guardados para entrenar: fuera de la bóveda, para no llenarla.
+  static Future<Directory> datasetDir(Settings s) async {
+    final dir = Directory('${await base(s)}_audios');
     await dir.create(recursive: true);
     return dir;
   }
@@ -43,13 +59,19 @@ class Storage {
     return file.writeAsString(markdown);
   }
 
-  static Future<List<File>> listNotes(Directory dir) async {
-    final files = await dir
-        .list()
-        .where((e) => e is File && e.path.endsWith('.md'))
-        .cast<File>()
-        .toList();
-    files.sort((a, b) => b.path.compareTo(a.path)); // AAAA-MM-DD_HHMM → más nuevas primero
+  /// Notas de Amanuense (nombre AAAA-MM-DD_HHMM_titulo.md) en la carpeta general y las de cada materia.
+  static Future<List<File>> listNotes(Settings s) async {
+    final b = await base(s);
+    final dirs = {Settings.generalFolder, ...s.materias.map((m) => m.carpeta)};
+    final files = <File>[];
+    for (final d in dirs) {
+      final dir = Directory('$b/$d');
+      if (!await dir.exists()) continue;
+      await for (final e in dir.list()) {
+        if (e is File && _notaRe.hasMatch(e.uri.pathSegments.last)) files.add(e);
+      }
+    }
+    files.sort((a, b) => b.uri.pathSegments.last.compareTo(a.uri.pathSegments.last)); // más nuevas primero
     return files;
   }
 }

@@ -34,11 +34,20 @@ class Api {
   }
 
   /// Sube el audio y devuelve la nota .md lista para guardar.
-  Future<Note> transcribe(File audio, {String title = ''}) async {
+  Future<Note> transcribe(
+    File audio, {
+    String title = '',
+    String materia = '',
+    String vocabulario = '',
+    List<double> marcas = const [],
+  }) async {
     final req = http.MultipartRequest('POST', Uri.parse('$server/transcribe/md'))
       ..headers.addAll(_headers)
       ..files.add(await http.MultipartFile.fromPath('audio', audio.path));
     if (title.trim().isNotEmpty) req.fields['title'] = title.trim();
+    if (materia.isNotEmpty) req.fields['materia'] = materia;
+    if (vocabulario.trim().isNotEmpty) req.fields['vocabulario'] = vocabulario.trim();
+    if (marcas.isNotEmpty) req.fields['marcas'] = marcas.map((m) => m.toStringAsFixed(1)).join(',');
 
     final http.Response r;
     try {

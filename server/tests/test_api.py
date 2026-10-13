@@ -56,3 +56,22 @@ def test_api_key(client, monkeypatch):
 def test_index(client):
     html = client.get("/").text
     assert "Amanuense" in html and "{{BANNER}}" not in html
+
+
+def test_md_materia_y_favoritos(client):
+    r = client.post(
+        "/transcribe/md",
+        files={"audio": ("clase.m4a", b"xxxx", "audio/mp4")},
+        data={"title": "Clase", "materia": "SOA", "marcas": "3.5,x", "vocabulario": "SOA, WSDL"},
+    )
+    assert r.status_code == 200
+    assert 'materia: "SOA"' in r.text and "tags: [amanuense, transcripcion, soa]" in r.text
+    assert "## ⭐ Momentos importantes" in r.text and "**[00:03]**" in r.text
+    assert "⭐ **[00:00]**" in r.text and "📚 [[SOA]]" in r.text and "tipo: transcripcion" in r.text
+
+
+def test_prompt_vocabulario():
+    from app.main import _prompt
+
+    assert _prompt("SOA, WSDL\nREST") == "Vocabulario: SOA, WSDL, REST."
+    assert _prompt("  ") is None

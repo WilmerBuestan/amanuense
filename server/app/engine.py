@@ -28,7 +28,7 @@ class Result:
 class Engine:
     name = "base"
 
-    def transcribe(self, path: str, language: str | None = None) -> Result:  # pragma: no cover
+    def transcribe(self, path: str, language: str | None = None, prompt: str | None = None) -> Result:  # pragma: no cover
         raise NotImplementedError
 
 
@@ -50,7 +50,7 @@ class WhisperEngine(Engine):
         # Un solo modelo en memoria: serializamos para no reventar RAM/VRAM
         self._lock = threading.Lock()
 
-    def transcribe(self, path: str, language: str | None = None) -> Result:
+    def transcribe(self, path: str, language: str | None = None, prompt: str | None = None) -> Result:
         t0 = time.perf_counter()
         with self._lock:
             segs, info = self.model.transcribe(
@@ -58,6 +58,8 @@ class WhisperEngine(Engine):
                 language=language or config.LANGUAGE or None,
                 vad_filter=True,  # salta silencios
                 beam_size=5,
+                # Vocabulario de la materia: Whisper acierta mejor esos términos
+                initial_prompt=prompt or None,
             )
             segments = [Segment(round(s.start, 2), round(s.end, 2), s.text.strip()) for s in segs]
         return Result(
@@ -75,7 +77,7 @@ class FakeEngine(Engine):
     name = "fake"
     device = compute = "none"
 
-    def transcribe(self, path: str, language: str | None = None) -> Result:
+    def transcribe(self, path: str, language: str | None = None, prompt: str | None = None) -> Result:
         segs = [Segment(0.0, 2.5, "Hola, esta es una prueba."), Segment(2.5, 5.0, "Segunda frase.")]
         return Result(" ".join(s.text for s in segs), language or "es", 5.0, 0.0, segs)
 

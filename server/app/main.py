@@ -11,7 +11,7 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, Response
 
 from . import branding, config, markdown
 from .engine import build_engine
@@ -55,10 +55,25 @@ async def _save_upload(audio: UploadFile) -> str:
     return tmp.name
 
 
-async def _run(audio: UploadFile, language: str | None):
+def _prompt(vocabulario: str | None) -> str | None:
+    words = [w.strip() for w in (vocabulario or "").replace("\n", ",").split(",") if w.strip()]
+    return ("Vocabulario: " + ", ".join(words) + ".") if words else None
+
+
+def _marcas(marcas: str | None) -> list[float]:
+    out = []
+    for m in (marcas or "").split(","):
+        try:
+            out.append(float(m))
+        except ValueError:
+            pass
+    return sorted(out)
+
+
+async def _run(audio: UploadFile, language: str | None, vocabulario: str | None = None):
     path = await _save_upload(audio)
     try:
-        return await run_in_threadpool(state["engine"].transcribe, path, language)
+        return await run_in_threadpool(state["engine"].transcribe, path, language, _prompt(vocabulario))
     except HTTPException:
         raise
     except Exception as e:  # audio corrupto, formato raro, etc.
@@ -71,6 +86,11 @@ async def _run(audio: UploadFile, language: str | None):
 def index():
     html = (STATIC / "index.html").read_text(encoding="utf-8")
     return HTMLResponse(html.replace("{{BANNER}}", branding.BANNER).replace("{{FIRMA}}", branding.FIRMA))
+
+
+@app.get("/icon.png", include_in_schema=False)
+def icon():
+    return FileResponse(STATIC / "icon.png", media_type="image/png")
 
 
 @app.get("/health")
@@ -87,9 +107,13 @@ def health():
 
 
 @app.post("/transcribe", dependencies=[Depends(check_key)])
-async def transcribe(audio: UploadFile = File(...), language: str | None = Form(None)):
-    """JSON con texto y segmentos. Lo usará la app Flutter."""
-    return asdict(await _run(audio, language))
+async def transcribe(
+    audio: UploadFile = File(...),
+    language: str | None = Form(None),
+    vocabulario: str | None = Form(None),
+):
+    """JSON con texto y segmentos."""
+    return asdict(await _run(audio, language, vocabulario))
 
 
 @app.post("/transcribe/md", dependencies=[Depends(check_key)])
@@ -97,12 +121,17 @@ async def transcribe_md(
     audio: UploadFile = File(...),
     title: str | None = Form(None),
     language: str | None = Form(None),
+    vocabulario: str | None = Form(None, description="Términos separados por coma (SOA, WSDL…)"),
+    materia: str | None = Form(None),
+    marcas: str | None = Form(None, description="Segundos marcados con ⭐, separados por coma"),
 ):
     """Devuelve directamente la nota .md descargable."""
-    result = await _run(audio, language)
+    result = await _run(audio, language, vocabulario)
     now = datetime.now()
     title = (title or "").strip() or Path(audio.filename or "nota").stem
-    md = markdown.build(result, title, now, source=audio.filename or "")
+    md = markdown.build(
+        result, title, now, source=audio.filename or "", materia=(materia or "").strip(), marcas=_marcas(marcas)
+    )
     name = markdown.filename(title, now)
     return Response(
         md,

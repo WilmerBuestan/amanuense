@@ -59,6 +59,14 @@ F1 – App Flutter MVP (carpeta app/)
   - Configuración (server, carpeta, API key solo si hace falta), lista de notas, ver/copiar nota,
     Reintentar si falla. Probada en el S22 Ultra (Android 16).
 
+F2a – Clases largas y Cerebro (13-oct-2026)
+  - Servicio en primer plano: graba con pantalla apagada; notificación con ⭐ Marcar y ⏹ Detener.
+  - ⭐ Favoritos → sección "Momentos importantes" y párrafos marcados en el .md.
+  - Materias con carpeta en la bóveda (VIII Semestre/<materia>) y vocabulario para Whisper.
+  - Frontmatter con tipo/estado/tags/creado y enlace [[materia]] (reglas de Cerebro_wilo).
+  - Opción "Guardar los audios" (fuera de la bóveda) para entrenar un modelo propio después.
+  - Ícono propio (app y página web).
+
 ## Lo que viene
 F1.1 – Llevar el server a la máquina vieja (guía: docs/DEPLOY-UBUNTU.md)
   - IP fija, Docker, modelo small→medium, medir con un audio de clase real.
