@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amanuense</title>
+<style>
+  :root { --bg:#f6f6f3; --card:#fff; --fg:#1d1d1b; --mut:#6b6b66; --acc:#3d5a3a; --bd:#deded8; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#151614; --card:#1f201d; --fg:#ecece6; --mut:#9a9a92; --acc:#8fb388; --bd:#33342f; } }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.5 system-ui,sans-serif; background:var(--bg); color:var(--fg); padding:16px; }
+  main { max-width:560px; margin:24px auto 8px; background:var(--card); border:1px solid var(--bd); border-radius:12px; padding:20px; }
+  h1 { margin:0 0 4px; font-size:1.4rem; } p.sub { margin:0 0 20px; color:var(--mut); }
+  label { display:block; font-weight:600; margin:14px 0 6px; }
+  input { width:100%; padding:10px; border:1px solid var(--bd); border-radius:8px; background:transparent; color:inherit; font:inherit; }
+  button { margin-top:18px; width:100%; padding:12px; border:0; border-radius:8px; background:var(--acc); color:var(--card); font:600 1rem system-ui; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:wait; }
+  button.sec { background:transparent; color:var(--acc); border:1.5px solid var(--acc); }
+  #msg { margin-top:14px; color:var(--mut); white-space:pre-wrap; }
+  pre { max-height:300px; overflow:auto; background:var(--bg); padding:10px; border-radius:8px; font-size:.85rem; white-space:pre-wrap; }
+  small { color:var(--mut); }
+  .bar { margin-top:16px; height:10px; background:var(--bg); border:1px solid var(--bd); border-radius:99px; overflow:hidden; }
+  .bar > div { height:100%; width:0; background:var(--acc); border-radius:99px; transition:width .25s linear; }
+  .pct { display:flex; justify-content:space-between; font-size:.85rem; color:var(--mut); margin-top:4px; font-variant-numeric:tabular-nums; }
+  pre.art { margin:0; padding:0; background:none; overflow:hidden; white-space:pre; line-height:1; color:var(--acc);
+            font-family:ui-monospace,'DejaVu Sans Mono',monospace; max-height:none; }
+  pre.banner { font-size:min(10.5px, calc((100vw - 80px) / 48)); margin-bottom:12px; }
+  footer { max-width:560px; margin:0 auto 24px; text-align:right; padding-right:4px; }
+  pre.firma { font-size:2.4px; display:inline-block; text-align:left; opacity:.75; }
+</style>
+</head>
+<body>
+<main>
+  <pre class="art banner" aria-label="Amanuense">{{BANNER}}</pre>
+  <h1>🎙️ Amanuense</h1>
+  <p class="sub">Sube un audio → descarga la nota <code>.md</code> con el texto literal.</p>
+  <form id="f">
+    <label for="audio">Audio (mp3, m4a, flac, wav, ogg, opus…)</label>
+    <input id="audio" type="file" accept="audio/*,video/*" required>
+    <label for="title">Título <small>(opcional)</small></label>
+    <input id="title" placeholder="Clase SOA - unidad 2">
+    <div id="keyBox" hidden>
+      <label for="key">API key <small>(el server la exige)</small></label>
+      <input id="key" type="password" autocomplete="off">
+    </div>
+    <button id="btn">Transcribir</button>
+  </form>
+  <div id="prog" hidden>
+    <div class="bar"><div id="fill"></div></div>
+    <div class="pct"><span id="stage"></span><span id="pct">0%</span></div>
+  </div>
+  <div id="msg"></div>
+  <button id="dl" class="sec" hidden>⬇️ Descargar .md</button>
+  <pre id="out" hidden></pre>
+</main>
+<footer><pre class="art firma" aria-label="by wilo" title="by wilo">{{FIRMA}}</pre></footer>
+<script>
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+$("key").value = store.get("am_key") || "";
+
+// La API key solo se pide si el server la exige
+fetch("/health").then(r => r.json()).then(h => { if (h.auth) $("keyBox").hidden = false; }).catch(() => {});
+
+// Duración del audio: del propio archivo; si el navegador no puede leerla, se estima por el peso (~128 kbps)
+function audioSeconds(file) {
+  return new Promise((resolve) => {
+    const guess = () => resolve(file.size / 16000);
+    const a = document.createElement("audio");
+    const url = URL.createObjectURL(file);
+    const t = setTimeout(() => { URL.revokeObjectURL(url); guess(); }, 3000);
+    a.preload = "metadata";
+    a.onloadedmetadata = () => {
+      clearTimeout(t); URL.revokeObjectURL(url);
+      isFinite(a.duration) && a.duration > 0 ? resolve(a.duration) : guess();
+    };
+    a.onerror = () => { clearTimeout(t); URL.revokeObjectURL(url); guess(); };
+    a.src = url;
+  });
+}
+
+// Segundos de proceso por segundo de audio; se ajusta solo con cada transcripción
+const ratio = () => parseFloat(store.get("am_ratio")) || 0.12;
+const OVERHEAD = 2;
+
+let pctNow = 0, timer = null, mdBlob = null, mdName = "nota.md";
+function setPct(p, stage) {
+  pctNow = Math.max(pctNow, Math.min(100, p));
+  $("fill").style.width = pctNow + "%";
+  $("pct").textContent = Math.floor(pctNow) + "%";
+  if (stage) $("stage").textContent = stage;
+}
+
+// Subida: 0–15 % real. Proceso: rápido hasta 70 % a mitad del tiempo estimado, luego cada vez más lento hasta 99 %
+function startEstimate(estimate) {
+  const t0 = Date.now();
+  timer = setInterval(() => {
+    const t = (Date.now() - t0) / 1000 / estimate;
+    const p = t < 0.5 ? 15 + 55 * (t / 0.5) : 70 + 29 * (1 - Math.exp(-(t - 0.5) * 2.5));
+    setPct(p, "Transcribiendo…");
+  }, 200);
+  return t0;
+}
+
+$("dl").addEventListener("click", () => {
+  if (!mdBlob) return;
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(mdBlob), download: mdName });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+$("f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const file = $("audio").files[0]; if (!file) return;
+  const fd = new FormData();
+  fd.append("audio", file);
+  if ($("title").value.trim()) fd.append("title", $("title").value.trim());
+  const key = $("key").value.trim();
+  store.set("am_key", key);
+
+  $("btn").disabled = true; $("out").hidden = true; $("dl").hidden = true; $("msg").textContent = "";
+  pctNow = 0; $("fill").style.transition = "none"; setPct(0, "Subiendo…");
+  requestAnimationFrame(() => { $("fill").style.transition = ""; });
+  $("prog").hidden = false;
+
+  const secs = await audioSeconds(file);
+  const estimate = OVERHEAD + secs * ratio();
+  const tStart = Date.now();
+  let tProc = null;
+
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "/transcribe/md");
+  if (key) xhr.setRequestHeader("X-API-Key", key);
+  xhr.responseType = "blob";
+  xhr.upload.onprogress = (ev) => { if (ev.lengthComputable) setPct(15 * ev.loaded / ev.total, "Subiendo…"); };
+  xhr.upload.onload = () => { tProc = startEstimate(estimate); };
+  const finish = () => { clearInterval(timer); $("btn").disabled = false; };
+
+  xhr.onload = async () => {
+    finish();
+    if (xhr.status !== 200) {
+      let detail = xhr.statusText;
+      try { detail = JSON.parse(await xhr.response.text()).detail || detail; } catch {}
+      if (xhr.status === 401) $("keyBox").hidden = false;
+      $("prog").hidden = true;
+      $("msg").textContent = "❌ " + detail;
+      return;
+    }
+    setPct(100, "Listo");
+    if (tProc && secs > 0) {  // aprende la velocidad real del server para la próxima barra
+      const real = Math.max(0.01, ((Date.now() - tProc) / 1000 - OVERHEAD) / secs);
+      store.set("am_ratio", (ratio() * 0.5 + real * 0.5).toFixed(4));
+    }
+    mdName = (xhr.getResponseHeader("Content-Disposition") || "").match(/filename="(.+)"/)?.[1] || "nota.md";
+    mdBlob = xhr.response;
+    $("out").textContent = await mdBlob.text(); $("out").hidden = false;
+    $("dl").hidden = false;
+    $("msg").textContent = `✅ ${mdName} (${((Date.now() - tStart) / 1000).toFixed(0)} s)`;
+  };
+  xhr.onerror = () => { finish(); $("prog").hidden = true; $("msg").textContent = "❌ No se pudo conectar con el server"; };
+  xhr.send(fd);
+});
+</script>
+</body>
+</html>

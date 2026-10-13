@@ -1,0 +1,15 @@
+services:
+  amanuense:
+    build: .
+    container_name: amanuense
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      WHISPER_DEVICE: cpu
+    ports:
+      - "8000:8000"
+    volumes:
+      - modelos:/models   # el modelo se descarga una sola vez y sobrevive a reinicios
+
+volumes:
+  modelos:

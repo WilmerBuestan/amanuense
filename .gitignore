@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.env
+*.m4a
+*.wav
+*.mp3
+notas/
+*.flac
+*.ogg
+*.opus
+.directory
+# Notas generadas en pruebas (contenido personal)
+/20*_*.md
