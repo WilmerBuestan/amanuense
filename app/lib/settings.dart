@@ -22,7 +22,7 @@ class Settings {
   Settings._(this._p);
   final SharedPreferences _p;
 
-  static const defaultServer = 'http://192.168.100.97:8000';
+  static const defaultServer = 'http://wilo-server:8000'; // Tailscale (MagicDNS)
   /// Notas sin materia
   static const generalFolder = 'Amanuense';
 

@@ -27,7 +27,8 @@ App que capture voz (clases y reuniones), la transcriba a texto literal y guarde
 - [x] **F0** Server transcriptor (FastAPI + faster-whisper, página web, script CLI, servicio systemd)
 - [x] **F0.1** Docker (`docker compose`, volumen para el modelo) · marca Amanuense · barra de progreso web
 - [x] **F1** App Flutter MVP: grabar → enviar → guardar `.md` · probada en Android 16 (S22 Ultra)
-- [ ] **F1.1** Server en la máquina vieja → ver [`DEPLOY-UBUNTU.md`](DEPLOY-UBUNTU.md)
+- [x] **F1.1** Server en la máquina vieja (`wilo-server`, 192.168.100.134) + Tailscale → ver [`DEPLOY-UBUNTU.md`](DEPLOY-UBUNTU.md)
+- [x] **F3a** APK release instalado · acceso remoto con Tailscale (probado con datos móviles)
 - [x] **F2a** Servicio en primer plano (pantalla apagada) · ⭐ favoritos · materias con vocabulario · notas en la bóveda Cerebro_wilo · ícono
 - [x] **F2a+** Interfaz renovada en app y web (menú ☰, animaciones, notas con buscador, historial web, tema oscuro)
 - [ ] **F2b** Bloques de ~30 s con texto en vivo y cola offline

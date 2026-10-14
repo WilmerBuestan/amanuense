@@ -116,7 +116,7 @@ En el panel de Tailscale (login.tailscale.com → Machines) puedes:
 - Activar **MagicDNS** (DNS → Enable) para usar un nombre en vez de la IP.
 - En el server: *⋯ → Disable key expiry* para que no se desconecte cada 6 meses.
 
-En la app pon como server **`http://amanuense:8000`** (con MagicDNS) o
+En la app pon como server **`http://wilo-server:8000`** (nombre del equipo con MagicDNS) o
 `http://100.x.y.z:8000`. Funciona en casa y fuera, con Tailscale encendido en el celular.
 
 ## 7. Activar la API key
@@ -163,6 +163,15 @@ El modelo descargado se conserva (volumen `modelos`).
 | La app no conecta fuera | Tailscale apagado en el celular o el server sin sesión (`tailscale status`) |
 | Error 401 | Falta o está mal la API key en la app |
 | Muy lento | Bajar a `base`, o revisar `docker stats` por si otra cosa usa la CPU |
+
+## ✅ Instalación real (13-oct-2026)
+| Dato | Valor |
+|---|---|
+| Equipo | `wilo-server` · 8 núcleos · 11 GB RAM · 101 GB libres |
+| IP en casa | `192.168.100.134` (cable `enp9s0`) |
+| Tailscale | `http://wilo-server:8000` — probado con datos móviles |
+| Modelo | `small` (CPU, int8) |
+| Proyecto | `~/amanuense/server` · `docker compose` |
 
 ---
 Amanuense · by wilo (Wilmer Buestan)

@@ -72,9 +72,16 @@ Interfaz v0.3 (13-oct-2026)
     pantalla Notas (buscar/filtrar), nota con formato y Compartir, Acerca de. Colores del ícono.
   - Web: menú lateral, arrastrar archivo, etapas + tiempo restante, vista con formato, historial, tema oscuro.
 
+Server en producción (13-oct-2026, noche)
+  - wilo-server (8 núcleos, 11 GB RAM), IP 192.168.100.134, Docker, modelo small: rápido.
+  - Tailscale: http://wilo-server:8000 funciona fuera de casa (probado con datos móviles).
+  - APK release v0.3.0 instalado en el S22 Ultra (~/Descargas/Amanuense-v0.3.0.apk).
+
 ## Lo que viene
-F1.1 – Llevar el server a la máquina vieja (guía: docs/DEPLOY-UBUNTU.md)
-  - IP fija, Docker, modelo small→medium, medir con un audio de clase real.
+  - API key activada en el server y en la app.
+  - Reservar la IP .134 en el router.
+  - Probar modelo medium con un audio de 10+ min.
+  - Cola de pendientes persistente · Syncthing celular ↔ bóveda.
 
 
 F2 – Sesiones largas (clases y reuniones)

@@ -116,7 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.link_rounded),
               labelText: 'Dirección',
-              helperText: 'Casa: http://192.168.x.x:8000 · Fuera: http://amanuense:8000 (Tailscale)',
+              helperText: 'Con Tailscale: http://wilo-server:8000 (casa y fuera) · Solo casa: http://192.168.100.134:8000',
               helperMaxLines: 2,
             ),
           ),
