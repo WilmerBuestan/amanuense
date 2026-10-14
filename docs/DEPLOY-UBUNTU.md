@@ -171,6 +171,7 @@ El modelo descargado se conserva (volumen `modelos`).
 | IP en casa | `192.168.100.134` (cable `enp9s0`) |
 | Tailscale | `http://wilo-server:8000` — probado con datos móviles |
 | Modelo | `small` (CPU, int8) |
+| API key | Activada y probada en la app (solo en `.env`, nunca en el repo) |
 | Proyecto | `~/amanuense/server` · `docker compose` |
 
 ---

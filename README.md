@@ -10,7 +10,7 @@
 # 🎙️ Amanuense
 
 Notas por voz → texto literal → `.md` local → Obsidian.
-Ver el plan completo en [`docs/CA.md`](docs/CA.md) · Llevarlo al Ubuntu Server: [`docs/DEPLOY-UBUNTU.md`](docs/DEPLOY-UBUNTU.md).
+Ver el plan completo en [`docs/CA.md`](docs/CA.md) · Llevarlo al Ubuntu Server: [`docs/DEPLOY-UBUNTU.md`](docs/DEPLOY-UBUNTU.md) · Plan de la próxima versión: [`docs/SIGUIENTE-VERSION.md`](docs/SIGUIENTE-VERSION.md).
 
 ```
 Grabador de voz/

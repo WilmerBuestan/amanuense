@@ -77,11 +77,10 @@ Server en producción (13-oct-2026, noche)
   - Tailscale: http://wilo-server:8000 funciona fuera de casa (probado con datos móviles).
   - APK release v0.3.0 instalado en el S22 Ultra (~/Descargas/Amanuense-v0.3.0.apk).
 
+  - API key activada en el server y en la app (probada).
+
 ## Lo que viene
-  - API key activada en el server y en la app.
-  - Reservar la IP .134 en el router.
-  - Probar modelo medium con un audio de 10+ min.
-  - Cola de pendientes persistente · Syncthing celular ↔ bóveda.
+Ver docs/SIGUIENTE-VERSION.md (v0.4: cola de pendientes, Syncthing, modelo medium).
 
 
 F2 – Sesiones largas (clases y reuniones)
